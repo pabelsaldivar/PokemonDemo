@@ -43,7 +43,7 @@ class LoginViewController: UIViewController {
     }
     
     func login(_ user: String, by password: String) {
-        if user != "xcaret" && password != "pabel" {
+        if user != "xcaret" || password != "pabel" {
             show(GenericError.wrongLogin)
         } else {
             AppManager.shared.isUserLogedIn = true
