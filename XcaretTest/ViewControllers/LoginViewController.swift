@@ -57,10 +57,10 @@ class LoginViewController: UIViewController {
         let settingsActionTitle = "Entendido"
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let goToSettings = UIAlertAction(title: settingsActionTitle, style: .default) { _ in
-            alert.dismiss(animated: true, completion: nil)
+            alert.dismiss(animated: true)
         }
         alert.addAction(goToSettings)
-        self.present(alert, animated: true, completion: nil)
+        self.present(alert, animated: true)
     }
 
     @IBAction func continueButtonTapped(_ sender: Any) {

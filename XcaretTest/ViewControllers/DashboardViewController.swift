@@ -22,6 +22,15 @@ class DashboardViewController: UIViewController {
         fetchPokemons()
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "PokemonViewController" {
+            if let viewController = segue.destination as? PokemonViewController {
+                guard let pokemon = sender as? PokemonModel else {return}
+                viewController.pokemon = pokemon
+            }
+        }
+    }
+    
     func fetchPokemons() {
         fetchLocalPokemons { (result) in
             switch result {
@@ -64,6 +73,7 @@ class DashboardViewController: UIViewController {
                     guard let data = data else {return}
                     let decoder = JSONDecoder()
                     if let serviceData = try? decoder.decode(PokemonResponseModel.self, from: data) {
+                        print(serviceData)
                         var pokemons: [PokemonModel] =  []
                         var id = 0
                         for pokemonData in serviceData.results {
@@ -173,5 +183,10 @@ extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDat
         let width = ((self.collectionView.frame.width / 2) - 32)
         let height = width
         return CGSize(width: width, height: height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let pokemon = dataSource[indexPath.row]
+        performSegue(withIdentifier: "PokemonViewController", sender: pokemon)
     }
 }
