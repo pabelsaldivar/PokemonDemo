@@ -7,6 +7,7 @@
 
 import UIKit
 import Alamofire
+import NVActivityIndicatorView
 
 class PokemonViewController: UIViewController {
     
@@ -16,6 +17,7 @@ class PokemonViewController: UIViewController {
     @IBOutlet weak var weighttLabel: UILabel!
     @IBOutlet weak var titleImageView: UIImageView!
     
+    var activityIndicator: NVActivityIndicatorView!
     var pokemon: PokemonModel?
     var dataSource: PokemonDetailResponseModel?
     
@@ -25,7 +27,6 @@ class PokemonViewController: UIViewController {
         fetchDetail()
     }
     
-
     func configureView() {
         if let pokemon = pokemon {
             titleLabel.text = pokemon.name
@@ -41,14 +42,19 @@ class PokemonViewController: UIViewController {
             heightLabel.text = ""
             weighttLabel.text = ""
         }
+        
+        activityIndicator = NVActivityIndicatorView(frame: (self.view.frame), type: .ballRotateChase, color: .white, padding: 80.0)
+        activityIndicator.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        self.view.addSubview(activityIndicator)
     }
-    
     
     func fetchDetail() {
         guard let requestURL = pokemon?.url else {return}
+        activityIndicator.startAnimating()
         AF.request(requestURL, method: .get, headers: nil)
             .validate()
             .responseDecodable(of:PokemonDetailResponseModel.self) { (response) in
+                self.activityIndicator.stopAnimating()
                 switch response.result {
                 case .success(let pokemonDetail):
                     self.dataSource = pokemonDetail

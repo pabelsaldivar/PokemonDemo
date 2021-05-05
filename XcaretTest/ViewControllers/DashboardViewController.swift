@@ -7,7 +7,9 @@
 
 import UIKit
 import Alamofire
+import FirebaseAuth
 import CoreData
+import NVActivityIndicatorView
 
 class DashboardViewController: UIViewController {
     
@@ -15,10 +17,12 @@ class DashboardViewController: UIViewController {
     @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    var activityIndicator: NVActivityIndicatorView!
     var dataSource: [PokemonModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureView()
         fetchPokemons()
     }
     
@@ -31,7 +35,14 @@ class DashboardViewController: UIViewController {
         }
     }
     
+    func configureView() {
+        activityIndicator = NVActivityIndicatorView(frame: (self.view.frame), type: .ballRotateChase, color: .white, padding: 80.0)
+        activityIndicator.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        self.view.addSubview(activityIndicator)
+    }
+    
     func fetchPokemons() {
+        self.activityIndicator.startAnimating()
         fetchLocalPokemons { (result) in
             switch result {
             case .success(let pokemons):
@@ -57,6 +68,7 @@ class DashboardViewController: UIViewController {
     }
     
     func updateView(isLocalData: Bool = true) {
+        self.activityIndicator.stopAnimating()
         DispatchQueue.main.async {
             self.collectionView.reloadData()
             self.infoLabel.text = isLocalData ? "Listo!, ahora estamos mostrando los datos consultados de la base de datos local de la app" : " Si deseas ver la misma lista haciendo la consulta de la base de datos local, sal y vuelve a ingresar a esta pantalla"
@@ -129,9 +141,7 @@ class DashboardViewController: UIViewController {
         guard let appDelegate =
                 UIApplication.shared.delegate as? AppDelegate else { return }
         
-        let context =
-            appDelegate.persistentContainer.viewContext
-        
+        let context = appDelegate.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<Pokemon> = Pokemon.fetchRequest()
         
         do {
@@ -162,11 +172,11 @@ class DashboardViewController: UIViewController {
     }
     
     @IBAction func logoutButtonTapped(_ sender: Any) {
-        AppManager.shared.isUserLogedIn = false
-        performSegue(withIdentifier: "logout", sender: nil)
+        if let _ = try? Auth.auth().signOut() {
+            performSegue(withIdentifier: "logout", sender: nil)
+        }
     }
 }
-
 
 extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

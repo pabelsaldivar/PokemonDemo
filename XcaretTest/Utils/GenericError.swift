@@ -9,6 +9,7 @@ import Foundation
 
 enum GenericError: Error {
     case emptyUser
+    case emailFormat
     case emptyPasword
     case wrongLogin
 }
@@ -18,6 +19,8 @@ extension GenericError: LocalizedError {
         switch self {
         case .emptyUser:
             return "Ingresa tu usuario."
+        case .emailFormat:
+            return "Por favor introduce un correo válido."
         case .emptyPasword:
             return "Ingresa tu contraseña."
         case .wrongLogin:

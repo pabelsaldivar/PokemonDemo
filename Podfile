@@ -7,5 +7,8 @@ target 'XcaretTest' do
 
   # Pods for XcaretTest
     pod 'Alamofire', '~> 5.0'
+    pod 'Firebase/Analytics'
+    pod 'Firebase/Auth'
+    pod 'NVActivityIndicatorView'
 
 end

@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FirebaseAuth
+import NVActivityIndicatorView
 
 class LoginViewController: UIViewController {
     
@@ -13,6 +15,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var userNameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var continueButton: UIButton!
+    
+    var activityIndicator: NVActivityIndicatorView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,27 +31,33 @@ class LoginViewController: UIViewController {
     
     func configureView() {
         continueButton.layer.cornerRadius = 8.0
+        activityIndicator = NVActivityIndicatorView(frame: (self.view.frame), type: .ballRotateChase, color: .white, padding: 80.0)
+        activityIndicator.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        self.view.addSubview(activityIndicator)
     }
     
     func validate() -> Result<(user: String, password: String), Error> {
-        
         guard let user = userNameTextField.text, !user.isEmpty else {
             return .failure(GenericError.emptyUser)
         }
-        
+        if !user.isEmail {
+            return .failure(GenericError.emptyUser)
+        }
         guard let password = passwordTextField.text, !password.isEmpty else {
             return.failure(GenericError.emptyPasword)
         }
-        
         return .success((user: user, password: password))
     }
     
     func login(_ user: String, by password: String) {
-        if user != "xcaret" || password != "pabel" {
-            show(GenericError.wrongLogin)
-        } else {
-            AppManager.shared.isUserLogedIn = true
-            performSegue(withIdentifier: "DashboardViewControllerNav", sender: nil)
+        activityIndicator.startAnimating()
+        Auth.auth().signIn(withEmail: user, password: password) { (user, error) in
+            if let error = error {
+                self.show(error)
+            } else {
+                self.performSegue(withIdentifier: "DashboardViewControllerNav", sender: nil)
+            }
+            self.activityIndicator.stopAnimating()
         }
     }
     
